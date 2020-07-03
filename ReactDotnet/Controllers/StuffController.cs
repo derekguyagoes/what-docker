@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using ReactDotnet.Models;
@@ -13,18 +14,16 @@ namespace ReactDotnet.Controllers
     public class StuffController : ControllerBase
     {
         [HttpGet]
-        public IEnumerable<string> Get()
+        public string Get()
         {
             var process = new Process()
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    //docker ps --format='{"Names":{{json .Names}},"Ports": {{json .Ports}},"Image": {{json .Image}}}'
                     FileName = "/usr/bin/docker",
-                    Arguments = $"\"ps \"",
-                    // FileName = "/bin/bash",
-                    // Arguments = $"-c \"pwd\"",
+                    Arguments = $"ps --format name:{{{{.Names}}}},ports:{{{{.Ports}}}},image:{{{{.Image}}}}",
                     RedirectStandardOutput = true,
+                    RedirectStandardError = true,
                     UseShellExecute = false,
                     CreateNoWindow = true,
                 }
@@ -35,14 +34,21 @@ namespace ReactDotnet.Controllers
             process.WaitForExit();
             string prettyResult = Resulter(result);
 
-            Console.WriteLine(prettyResult);
-            
-            return new List<string>{prettyResult};
+            return prettyResult;
         }
 
         public static string Resulter(string uglyThing)
         {
-            Container cat = JsonSerializer.Deserialize<Container>(uglyThing);
+            var uglyThings = uglyThing.Split(',');
+            var dog = new
+            {
+                Names = uglyThings.ElementAt(0).Split(':').ElementAt(1),
+                Ports = uglyThings.ElementAt(1).Split(':').ElementAt(1),
+                Image = uglyThings.ElementAt(2).Split(':').ElementAt(1),
+            };
+
+            var jsonDog = JsonConvert.SerializeObject(dog);
+            var cat = JsonSerializer.Deserialize<Container>(jsonDog);
             return JsonSerializer.Serialize(cat);
 
         }
