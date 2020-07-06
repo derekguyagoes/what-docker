@@ -42,9 +42,9 @@ namespace ReactDotnet.Controllers
             var uglyThings = uglyThing.Split(',');
             var dog = new
             {
-                Names = uglyThings.ElementAt(0).Split(':').ElementAt(1),
-                Ports = uglyThings.ElementAt(1).Split(':').ElementAt(1),
-                Image = uglyThings.ElementAt(2).Split(':').ElementAt(1),
+                Names = uglyThings.ElementAt(0).Split(':').ElementAt(1) ?? "",
+                Ports = uglyThings.ElementAt(1).Split(':').ElementAt(1) ?? "",
+                Image = uglyThings.ElementAt(2).Split(':').ElementAt(1) ?? "",
             };
 
             var jsonDog = JsonConvert.SerializeObject(dog);

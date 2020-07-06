@@ -1,8 +1,7 @@
-using System.Linq;
-using NUnit;
 using NUnit.Framework;
+using ReactDotnet.Controllers;
 
-namespace ReactDotnet.Controllers
+namespace TestProject1
 {
     public class StuffControllerTests
     {

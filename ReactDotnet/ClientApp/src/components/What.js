@@ -1,34 +1,35 @@
-import React, {Component} from 'react'
+import React, {useState, useEffect} from 'react'
+import axios from 'axios'
 
-export class What extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {stuff:[], loading: true}
-    }
+export default () => {
+    const [containers, setContainers] = useState({})
     
-    componentDidMount() {
-        this.populateSomethingData()
-    }
-
-    render() {
-        let contents = this.state.loading
-        ? <p><em>Loading...</em></p>
-        : this.state.stuff
-        
-        return (
-            <div>
-                <h1>What</h1>
-                <h1>name: {contents.Names}</h1>
-                <h1>image: {contents.Image}</h1>
-                <h1>ports: {contents.Ports}</h1>
-            </div>
-        );
-    }
-    
-    async populateSomethingData(){
+    const fetchContainers = async () => {
         const response = await fetch('stuff')
         const data = await response.json()
         console.log(data)
-        this.setState({stuff: data, loading: false})
+        // this.setState({stuff: data, loading: false})
+        setContainers(data)
     }
+    
+    useEffect(() => {
+        fetchContainers()
+    },[])
+    
+    const renderedContainers = Object.values(containers).map(container => {
+        console.log(container)
+        return (
+            <div key={container.id}>
+                <div>
+                    name: {container}
+                </div>
+            </div>
+        )
+    })   
+    
+    return (
+        <div>
+            {renderedContainers}            
+        </div>    
+    )
 }
