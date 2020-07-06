@@ -5,11 +5,8 @@ export default () => {
     const [containers, setContainers] = useState({})
     
     const fetchContainers = async () => {
-        const response = await fetch('stuff')
-        const data = await response.json()
-        console.log(data)
-        // this.setState({stuff: data, loading: false})
-        setContainers(data)
+        const res = await axios.get('runningcontainers')        
+        setContainers(res.data)
     }
     
     useEffect(() => {
@@ -19,8 +16,11 @@ export default () => {
     const renderedContainers = Object.values(containers).map(container => {
         console.log(container)
         return (
-            <div key={container.id}>
-                <div>
+            <div
+                className="card"
+                style={{width: '30%', marginBottom: '20px'}}
+                key={container.id}>
+                <div className="card-body">
                     name: {container}
                 </div>
             </div>

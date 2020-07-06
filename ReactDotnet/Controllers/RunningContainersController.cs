@@ -11,7 +11,7 @@ namespace ReactDotnet.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class StuffController : ControllerBase
+    public class RunningContainersController : ControllerBase
     {
         [HttpGet]
         public string Get()
@@ -37,9 +37,31 @@ namespace ReactDotnet.Controllers
             return prettyResult;
         }
 
-        public static string Resulter(string uglyThing)
+        public static string Resulter(string psResults)
         {
-            var uglyThings = uglyThing.Split(',');
+            Console.WriteLine(psResults);
+            
+            if (psResults.Contains('\n'))
+            {
+                
+                var multipleRunning = psResults.Trim().Split('\n').ToList();
+                var results = new List<Container>();
+                foreach (var running in multipleRunning)
+                {
+                    results.Add(SingleResulter(running));
+                }
+                return JsonSerializer.Serialize(results);
+            }
+
+            return JsonSerializer.Serialize(SingleResulter(psResults));
+
+
+
+        }
+
+        private static Container SingleResulter(string psResults)
+        {
+            var uglyThings = psResults.Split(',');
             var dog = new
             {
                 Names = uglyThings.ElementAt(0).Split(':').ElementAt(1) ?? "",
@@ -48,9 +70,10 @@ namespace ReactDotnet.Controllers
             };
 
             var jsonDog = JsonConvert.SerializeObject(dog);
-            var cat = JsonSerializer.Deserialize<Container>(jsonDog);
-            return JsonSerializer.Serialize(cat);
-
+            return JsonSerializer.Deserialize<Container>(jsonDog);
+            
+            // var cat = JsonSerializer.Deserialize<Container>(jsonDog);
+            // return JsonSerializer.Serialize(cat);
         }
     }
 }
