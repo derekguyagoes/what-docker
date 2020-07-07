@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using NUnit.Framework;
 using ReactDotnet.Controllers;
 using ReactDotnet.Models;
@@ -10,35 +11,55 @@ namespace TestProject1
 {
     public class StuffControllerTests
     {
+        private string all =
+            "{\"other\":[{\"image\":\"nginx\",\"name\":\"garbonzia\",\"port\":80},{\"image\":\"ninja\",\"name\":\"rec\",\"port\":8080}],\"staging\":[]}";
+        
         [Test]
-        public void Initial()
+        public void Resulter_OneRunningContainer_ExpectedNameAndImage()
         {
             var json = "name:fervent_nobel,ports:80/tcp,image:nginx";
              // {"Image":"nginx","Names":"fervent_nobel","Ports":"80/tcp"}
 
 //            name:fervent_nobel,ports:80/tcp,image:nginx
 
-            var result = RunningContainersController.Resulter(json);
-            var resultContainer = JsonSerializer.Deserialize<Container>(result);
-            resultContainer.Image.ShouldBe("nginx");
-            resultContainer.Names.ShouldBe("fervent_nobel");
-
+            var result = RunningContainersController.ParsesRunningContainers(json);
+            
+            result.First().Image.ShouldBe("nginx");
+            result.First().Names.ShouldBe("fervent_nobel");
         }
 
         [Test]
-        public void TestGet()
+        public void Resulter_TwoRunningContainers_ExpectedNameAndImage()
         {
             string json =
                 @"name:competent_haibt,ports:80/tcp,image:nginx
                    name:loving_lamarr,ports:0.0.0.0:80->80/tcp,image:ninja";
-            var result = RunningContainersController.Resulter(json);
+            List<Container> result = RunningContainersController.ParsesRunningContainers(json);
             
-            var resultContainer = JsonSerializer.Deserialize<List<Container>>(result);
-            resultContainer.Count.ShouldBe(2);
-            resultContainer.First().Names.ShouldBe("competent_haibt");
-            resultContainer.ElementAt(1).Image.ShouldBe("ninja");
+            
+            result.Count.ShouldBe(2);
+            result.First().Names.ShouldBe("competent_haibt");
+            result.ElementAt(1).Image.ShouldBe("ninja");
+        }
+
+        [Test]
+        public void JsonMagick_ListToJson_ExpectedResult()
+        {
+            var expectedJson = "{\"Other\":[{\"Image\":\"nginx\",\"Names\":\"garbonzia\",\"Ports\":\"80\"}]}";
+            var containersToSend = new List<Container>
+            {
+                new Container
+                {
+                    Image = "nginx",
+                    Names = "garbonzia",
+                    Ports = "80"
+                }
+            };
             
 
+            var result = RunningContainersController.JsonMagick(containersToSend);
+            string.IsNullOrWhiteSpace(result).ShouldBeFalse();
+            result.ShouldContain("garbonzia");
         }
     }
 }

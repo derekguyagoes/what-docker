@@ -32,28 +32,37 @@ namespace ReactDotnet.Controllers
             process.Start();
             string result = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
-            string prettyResult = Resulter(result);
+            var runningContainersList = ParsesRunningContainers(result);
+            var prettyResult = JsonMagick(runningContainersList);
 
             return prettyResult;
         }
 
-        public static string Resulter(string psResults)
+        public static string JsonMagick(List<Container> containers)
+        {
+            var thing = new
+            {
+                Other = containers
+            };
+            return JsonSerializer.Serialize(thing);
+        }
+
+        public static List<Container> ParsesRunningContainers(string psResults)
         {
             Console.WriteLine(psResults);
             
             if (psResults.Contains('\n'))
             {
-                
                 var multipleRunning = psResults.Trim().Split('\n').ToList();
                 var results = new List<Container>();
                 foreach (var running in multipleRunning)
                 {
                     results.Add(SingleResulter(running));
                 }
-                return JsonSerializer.Serialize(results);
+                return results;
             }
 
-            return JsonSerializer.Serialize(SingleResulter(psResults));
+            return new List<Container> {SingleResulter(psResults)};
 
 
 
