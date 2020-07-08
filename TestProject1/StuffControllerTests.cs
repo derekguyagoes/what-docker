@@ -26,6 +26,7 @@ namespace TestProject1
             
             result.First().Image.ShouldBe("nginx");
             result.First().Names.ShouldBe("fervent_nobel");
+            result.First().Ports.ShouldBe("80/tcp");
         }
 
         [Test]
@@ -36,10 +37,21 @@ namespace TestProject1
                    name:loving_lamarr,ports:0.0.0.0:80->80/tcp,image:ninja";
             List<Container> result = RunningContainersController.ParsesRunningContainers(json);
             
-            
             result.Count.ShouldBe(2);
             result.First().Names.ShouldBe("competent_haibt");
             result.ElementAt(1).Image.ShouldBe("ninja");
+        }
+        
+        //ports:0.0.0.0:1433->1433/tcp
+        //name:services_pdc-datastore_1,ports:0.0.0.0:1433->1433/tcp,image:pdc-datastore:2019-GA-ubuntu
+        [Test]
+        public void SingleResulter_PortForwarded_GetsOnlyPortNotIP()
+        {
+            string withIPAndPortString = @"name:loving_lamarr,ports:0.0.0.0:80->80/tcp,image:ninja";
+
+            var result = RunningContainersController.ParsesRunningContainers(withIPAndPortString);
+            
+            result.First().Ports.ShouldBe("80->80/tcp");
         }
 
         [Test]
@@ -55,11 +67,12 @@ namespace TestProject1
                     Ports = "80"
                 }
             };
-            
 
             var result = RunningContainersController.JsonMagick(containersToSend);
             string.IsNullOrWhiteSpace(result).ShouldBeFalse();
             result.ShouldContain("garbonzia");
         }
+        
+        
     }
 }

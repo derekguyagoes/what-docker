@@ -50,7 +50,7 @@ namespace ReactDotnet.Controllers
         public static List<Container> ParsesRunningContainers(string psResults)
         {
             Console.WriteLine(psResults);
-            
+
             if (psResults.Contains('\n'))
             {
                 var multipleRunning = psResults.Trim().Split('\n').ToList();
@@ -59,13 +59,11 @@ namespace ReactDotnet.Controllers
                 {
                     results.Add(SingleResulter(running));
                 }
+
                 return results;
             }
 
             return new List<Container> {SingleResulter(psResults)};
-
-
-
         }
 
         private static Container SingleResulter(string psResults)
@@ -74,15 +72,20 @@ namespace ReactDotnet.Controllers
             var dog = new
             {
                 Names = uglyThings.ElementAt(0).Split(':').ElementAt(1) ?? "",
-                Ports = uglyThings.ElementAt(1).Split(':').ElementAt(1) ?? "",
+                Ports = PortChecker(uglyThings.ElementAt(1)),
                 Image = uglyThings.ElementAt(2).Split(':').ElementAt(1) ?? "",
             };
 
             var jsonDog = JsonConvert.SerializeObject(dog);
             return JsonSerializer.Deserialize<Container>(jsonDog);
-            
+
             // var cat = JsonSerializer.Deserialize<Container>(jsonDog);
             // return JsonSerializer.Serialize(cat);
         }
+
+        private static string PortChecker(string address) =>
+            address.Split(':')
+                .ElementAt(address.Contains('>') ? 2 : 1) ?? "";
+        
     }
 }
