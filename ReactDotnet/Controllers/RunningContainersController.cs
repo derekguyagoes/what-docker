@@ -14,7 +14,7 @@ namespace ReactDotnet.Controllers
     public class RunningContainersController : ControllerBase
     {
         [HttpGet]
-        public string Get()
+        public ActionResult<string> Get()
         {
             var process = new Process()
             {

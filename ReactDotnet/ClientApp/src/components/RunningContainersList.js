@@ -1,51 +1,44 @@
 import React, {useState, useEffect} from 'react'
 import axios from 'axios'
 
-export default () => {
-    const [containers, setContainers] = useState([])
-    
-    const fetchContainers = async () => {
-        const res = await axios.get('runningcontainers')        
-        setContainers(res.data)
-        console.log(`data: ${JSON.stringify(containers)}`)
-    }
-    
+const items = [
+    {title: 'what is?', content: 'front end'},
+    {title: 'why use?', content: 'favorite'},
+    {title: 'how use?', content: 'you are'},
+]
+
+const RunningContainersList = () => {
+    const [data, setData] = useState({ Other: [] })
+
     useEffect(() => {
-        fetchContainers()
-    },[])   
-    
-    
-    // const renderedContainers = Object.values(containers).map(container => {
-    //     console.log(container)
-    //     return (
-    //         <div
-    //             className="card"
-    //             style={{width: '30%', marginBottom: '20px'}}
-    //             key={container.id}>
-    //             <div className="card-body">
-    //                 <h3>name: {container}</h3>
-    //             </div>
-    //         </div>
-    //     )
-    // })   
-    
-    // const renderedContainers = containers.map((container, index) => {
-    //     return <li key={container.Name}>{container}</li>
-    // })
-    
-    
+        const fetchData = async () => {
+            const result = await axios(                
+                'runningcontainers'
+            )
+
+            setData(result.data);
+        }
+
+        fetchData();
+    },[])
+
     return (
-        <>
-            <ul>
-                {containers.map(container => (
-                    <li key={container.Name}>{container}</li>
-                ))}
-            </ul>    
-        </>
+
+        <div>            
             
-        // <div className="d-flex flex-row flex-wrap justify-content-between">
-        //     {/*{containers.map(container => <li>{container}</li>)}*/}
-        //     {renderedContainers} 
-        // </div>    
+            <ul>
+                {data.Other.map(item => (
+                    <li key={item.Names}>
+                        Image: {item.Image} <br/>
+                        Name: {item.Names}<br/>
+                        Ports: {item.Ports}<br/>
+                    </li>
+                ))}
+            </ul>
+        </div>
     )
 }
+
+export default RunningContainersList
+     
+
