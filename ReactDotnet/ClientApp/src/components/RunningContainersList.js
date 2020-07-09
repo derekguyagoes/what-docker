@@ -16,7 +16,8 @@ const RunningContainersList = () => {
                 'runningcontainers'
             )
 
-            setData(result.data);
+            console.log(`data: ${JSON.stringify(result.data)}`)
+            setData(result.data );
         }
 
         fetchData();
@@ -27,7 +28,7 @@ const RunningContainersList = () => {
         <div>            
             
             <ul>
-                {data.Other.map(item => (
+                {data.Other?.map(item => (
                     <li key={item.Names}>
                         Image: {item.Image} <br/>
                         Name: {item.Names}<br/>

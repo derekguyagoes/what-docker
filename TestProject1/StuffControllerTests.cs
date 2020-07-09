@@ -1,11 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using NUnit.Framework;
 using ReactDotnet.Controllers;
 using ReactDotnet.Models;
 using Shouldly;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace TestProject1
 {
@@ -15,12 +14,11 @@ namespace TestProject1
             "{\"other\":[{\"image\":\"nginx\",\"name\":\"garbonzia\",\"port\":80},{\"image\":\"ninja\",\"name\":\"rec\",\"port\":8080}],\"staging\":[]}";
         
         [Test]
-        public void Resulter_OneRunningContainer_ExpectedNameAndImage()
+        public void ParsesRunningContainers_OneRunningContainer_ExpectedNameAndImage()
         {
             var json = "name:fervent_nobel,ports:80/tcp,image:nginx";
              // {"Image":"nginx","Names":"fervent_nobel","Ports":"80/tcp"}
-
-//            name:fervent_nobel,ports:80/tcp,image:nginx
+            // name:fervent_nobel,ports:80/tcp,image:nginx
 
             var result = RunningContainersController.ParsesRunningContainers(json);
             
@@ -30,7 +28,7 @@ namespace TestProject1
         }
 
         [Test]
-        public void Resulter_TwoRunningContainers_ExpectedNameAndImage()
+        public void ParsesRunningContainers_TwoRunningContainers_ExpectedNameAndImage()
         {
             string json =
                 @"name:competent_haibt,ports:80/tcp,image:nginx
@@ -41,9 +39,16 @@ namespace TestProject1
             result.First().Names.ShouldBe("competent_haibt");
             result.ElementAt(1).Image.ShouldBe("ninja");
         }
-        
-        //ports:0.0.0.0:1433->1433/tcp
-        //name:services_pdc-datastore_1,ports:0.0.0.0:1433->1433/tcp,image:pdc-datastore:2019-GA-ubuntu
+
+        [Test]
+        public void ParsesRunningContainers_NoRunningContainers_ExpectedResults()
+        {
+            string json = String.Empty;
+            List<Container> result = RunningContainersController.ParsesRunningContainers(json);
+            
+            result.ShouldBeNull();
+        }
+
         [Test]
         public void SingleResulter_PortForwarded_GetsOnlyPortNotIP()
         {
@@ -57,7 +62,7 @@ namespace TestProject1
         [Test]
         public void JsonMagick_ListToJson_ExpectedResult()
         {
-            var expectedJson = "{\"Other\":[{\"Image\":\"nginx\",\"Names\":\"garbonzia\",\"Ports\":\"80\"}]}";
+            // var expectedJson = "{\"Other\":[{\"Image\":\"nginx\",\"Names\":\"garbonzia\",\"Ports\":\"80\"}]}";
             var containersToSend = new List<Container>
             {
                 new Container
@@ -72,7 +77,5 @@ namespace TestProject1
             string.IsNullOrWhiteSpace(result).ShouldBeFalse();
             result.ShouldContain("garbonzia");
         }
-        
-        
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -16,6 +15,61 @@ namespace ReactDotnet.Controllers
         [HttpGet]
         public ActionResult<string> Get()
         {
+            var result = RunProcess();
+            var runningContainersList = ParsesRunningContainers(result);
+            var prettyResult = JsonMagick(runningContainersList);
+
+            return prettyResult;
+        }
+
+        public static List<Container> ParsesRunningContainers(string psResults)
+        {
+            if (string.IsNullOrEmpty(psResults)) 
+            {
+                return null;
+            }
+            
+            if (psResults.Contains('\n'))
+            {
+                var multipleRunning = psResults.Trim().Split('\n').ToList();
+                var results = new List<Container>();
+                foreach (var running in multipleRunning)
+                {
+                    results.Add(SingleResulter(running));
+                }
+
+                return results;
+            }
+
+            return new List<Container> {SingleResulter(psResults)};
+        }
+        
+        public static string JsonMagick(List<Container> containers)
+        {
+            var thing = new
+            {
+                Other = containers
+            };
+            return JsonSerializer.Serialize(thing);
+        }
+
+        private static Container SingleResulter(string psResults)
+        {
+           
+            var splitResults = psResults.Split(',');
+            var candidate = new
+            {
+                Names = splitResults.ElementAt(0).Split(':').ElementAt(1) ?? "",
+                Ports = PortChecker(splitResults.ElementAt(1)),
+                Image = splitResults.ElementAt(2).Split(':').ElementAt(1) ?? "",
+            };
+
+            var jsonDog = JsonConvert.SerializeObject(candidate);
+            return JsonSerializer.Deserialize<Container>(jsonDog);
+        }
+        
+        private string RunProcess()
+        {
             var process = new Process()
             {
                 StartInfo = new ProcessStartInfo
@@ -32,55 +86,7 @@ namespace ReactDotnet.Controllers
             process.Start();
             string result = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
-            var runningContainersList = ParsesRunningContainers(result);
-            var prettyResult = JsonMagick(runningContainersList);
-
-            return prettyResult;
-        }
-
-        public static string JsonMagick(List<Container> containers)
-        {
-            var thing = new
-            {
-                Other = containers
-            };
-            return JsonSerializer.Serialize(thing);
-        }
-
-        public static List<Container> ParsesRunningContainers(string psResults)
-        {
-            Console.WriteLine(psResults);
-
-            if (psResults.Contains('\n'))
-            {
-                var multipleRunning = psResults.Trim().Split('\n').ToList();
-                var results = new List<Container>();
-                foreach (var running in multipleRunning)
-                {
-                    results.Add(SingleResulter(running));
-                }
-
-                return results;
-            }
-
-            return new List<Container> {SingleResulter(psResults)};
-        }
-
-        private static Container SingleResulter(string psResults)
-        {
-            var uglyThings = psResults.Split(',');
-            var dog = new
-            {
-                Names = uglyThings.ElementAt(0).Split(':').ElementAt(1) ?? "",
-                Ports = PortChecker(uglyThings.ElementAt(1)),
-                Image = uglyThings.ElementAt(2).Split(':').ElementAt(1) ?? "",
-            };
-
-            var jsonDog = JsonConvert.SerializeObject(dog);
-            return JsonSerializer.Deserialize<Container>(jsonDog);
-
-            // var cat = JsonSerializer.Deserialize<Container>(jsonDog);
-            // return JsonSerializer.Serialize(cat);
+            return result;
         }
 
         private static string PortChecker(string address) =>
