@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import axios from 'axios'
-import {Grid, List, Image} from 'semantic-ui-react'
+import {Grid, List, Image, Card} from 'semantic-ui-react'
 
 const RunningContainersList = () => {
     const [data, setData] = useState({Other: []})
@@ -11,12 +11,13 @@ const RunningContainersList = () => {
                 'runningcontainers'
             )
 
-            console.log(`data: ${JSON.stringify(result.data)}`)
+            // console.log(`data: ${JSON.stringify(result.data)}`)
             setData(result.data);
         }
 
         fetchData();
-    }, [])
+    }, []) 
+    
 
     if (data.Other) {
         return (
