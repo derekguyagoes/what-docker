@@ -21,21 +21,18 @@ const RunningContainersList = () => {
     if (data.Other) {
         return (
             <Grid celled>
-
-                {data.Other?.map(item => (
-                    <Grid.Row>
-                        <Grid.Column width={3}>
-                            <Image src='https://react.semantic-ui.com/images/wireframe/image.png' />
-                        </Grid.Column>
-                        <Grid.Column width={13}>
-                            <List.Item key={item.Names}>
-                                Image: {item.Image} <br/>
-                                Name: {item.Names}<br/>
-                                Ports: {item.Ports}<br/>
+                <Grid.Row>
+                    <Grid.Column width={3}>
+                        <Image src='https://react.semantic-ui.com/images/wireframe/image.png'/>
+                    </Grid.Column>
+                    <Grid.Column width={13}>
+                        {data.Other?.map(item => (
+                            <List.Item key={item.Names} sty>
+                                <b>Image:</b> {item.Image} <b>Name:</b> {item.Names} <b>Ports:</b> {item.Ports}
                             </List.Item>
-                        </Grid.Column>
-                    </Grid.Row>
-                ))}
+                        ))}
+                    </Grid.Column>
+                </Grid.Row>
             </Grid>
         )
     }
